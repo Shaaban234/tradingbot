@@ -32,8 +32,9 @@ def fp(p):
 
 def new_state():
     return {"venue": VENUE, "budget": C.BUDGET_USDT, "cash": C.BUDGET_USDT, "positions": [], "trades": [],
-            "equity_hist": [], "approvals": {}, "halted": False, "pause_until_ms": 0, "paused_by_user": False,
-            "started_utc": iso(int(time.time() * 1000)), "runs": 0, "errors": []}
+            "equity_hist": [], "approvals": {}, "halted": False, "pause_until_ms": 0,
+            "started_utc": iso(int(time.time() * 1000)), "runs": 0, "errors": [],
+            "paused_by_user": C.REAL_MONEY}       # real money starts paused until the key/balance are verified
 
 
 def load():
@@ -430,6 +431,13 @@ def control(action, symbol=None, ex=None):
     S = load()
     if action == "status":
         return 200, S
+    if action == "balance":                 # read-only: proves the API key works
+        e = ex or Exchange()
+        try:
+            return 200, {"mode": C.MODE, "usdt_free": e.free("USDT"), "bnb_free": e.free("BNB"),
+                         "bot_budget": S["budget"], "bot_cash": S["cash"], "paused": S.get("paused_by_user")}
+        except BinanceError as err:
+            return 502, {"error": str(err)}
     if not store.lock("run", 120):
         return 409, "The bot is busy with a check. Try again in a minute."
     ts = int(time.time() * 1000)
