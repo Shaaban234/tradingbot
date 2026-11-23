@@ -46,8 +46,18 @@ def unlock_risk(U, coin, now_ms, before_d=UNLOCK_BEFORE_D, after_d=UNLOCK_AFTER_
 def whale_flow(get, sym, now_ms):
     try:
         tr = get(f"/aggTrades?symbol={sym}&limit=1000")
+        # busy coins: 1000 trades may cover only minutes -> page back (max 5 more calls) to cover the full hour
+        for _ in range(5):
+            if not tr or tr[0]["T"] <= now_ms - 3.6e6:
+                break
+            older = get(f"/aggTrades?symbol={sym}&limit=1000&fromId={max(tr[0]['a'] - 1000, 0)}")
+            older = [t for t in older if t["a"] < tr[0]["a"]]
+            if not older:
+                break
+            tr = older + tr
     except Exception:
-        return None
+        if not locals().get("tr"):
+            return None
     tr = [t for t in tr if t["T"] >= now_ms - 3.6e6]
     if len(tr) < 20:
         return None
