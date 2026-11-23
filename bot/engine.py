@@ -482,7 +482,7 @@ def self_test(ex, sym):
         return ["🧪 Self-test FAILED at " + step + f": {e} · so far: " + " · ".join(out)]
 
 
-def control(action, symbol=None, ex=None):
+def control(action, symbol=None, ex=None, note=None):
     """pause | resume | close (symbol) | status. Protected by CONTROL_TOKEN in the API layer."""
     S = load()
     if action == "status":
@@ -509,6 +509,14 @@ def control(action, symbol=None, ex=None):
             if C.MODE != "testnet":
                 return 400, "Self-test only runs in testnet mode."
             events += self_test(ex or Exchange(), symbol or "BTCUSDT")
+        elif action == "research":
+            sym = (symbol or "").upper(); sym = sym if sym.endswith("USDT") else sym + "USDT"
+            pos = next((p for p in S["positions"] if p["symbol"] == sym), None)
+            if not pos:
+                return 404, f"No open position in {sym}."
+            pos["research"] = (note or "checked")[:300]
+            save(S)
+            return 200, f"Research noted for {sym}."
         elif action == "close":
             sym = (symbol or "").upper()
             sym = sym if sym.endswith("USDT") else sym + "USDT"
