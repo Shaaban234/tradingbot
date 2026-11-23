@@ -17,8 +17,9 @@ REAL_MONEY = MODE in ("approval", "live")
 
 # ---- money limits (hard caps: the bot never spends more than BUDGET_USDT in total)
 BUDGET_USDT = _f("BUDGET_USDT", 12)          # the slice of your account the bot may use
-TRADE_USDT = _f("TRADE_USDT", 6)             # size of each buy; must stay above Binance's $5 minimum after a stop-loss
-MAX_TRADE_USDT = 10.0                        # absolute cap per buy, whatever the settings say
+RISK_PCT = 0.015                             # paper bot v6.2 sizing: a stop-out loses ~1.5% of the balance...
+MIN_TRADE_USDT = 6.0                         # ...but never below $6 (Binance's $5 minimum must still hold after a stop)
+MAX_TRADE_USDT = _f("MAX_TRADE_USDT", 1000)  # optional hard cap per buy
 MAX_POS = int(_f("MAX_POS", 2))
 
 # ---- strategy v6.2 (same as the paper bot): buy dips when >= 2 of 4 oversold signals agree
@@ -30,6 +31,8 @@ BE_AT_R = 1.5                                        # move stop to breakeven on
 TRAIL_AT_R, TRAIL_GAP_R = 2.0, 0.75                  # then trail 0.75x the stop distance below the peak
 STOP_LIMIT_GAP = 0.015                               # stop-limit order sells down to 1.5% below the stop price
 MAX_HOLD_H, EXT_HOLD_H, EXTEND_MIN_GAIN = 24, 48, 0.003
+EXTEND_MIN_SCORE = 0.20                              # keep past 24h only if up >0.3% AND 29-strategy score >= 0.20
+RUNNER_SCORE = 0.40                                  # near target with score >= 0.40 and Supertrend up: drop target, trail
 MAX_ATR_PCT, MIN_ATR_PCT = 0.04, 0.002
 MAX_SPREAD = 0.003
 RECENT_LOSER_H = 6

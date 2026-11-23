@@ -64,7 +64,7 @@ class FakeEx:
         if self.fail_protect: raise BinanceError(400, -2010, "test failure")
         assert q <= self.bal.get(s[:-4], 0) + 1e-9, "protecting more than we own"
         self.n += 1; self.lists[self.n] = {"s": s, "q": q, "stop": stop, "tgt": target, "done": None}
-        return {"kind": "oco", "id": self.n, "stop": float(_fmt(stop, 0.0001)), "target": target, "qty": q}
+        return {"kind": "oco" if target else "stop", "id": self.n, "stop": float(_fmt(stop, 0.0001)), "target": target, "qty": q}
     def unprotect(self, s, p): self.lists.pop(p["id"], None)
     def protection_result(self, s, p):
         L = self.lists.get(p["id"])
@@ -122,3 +122,34 @@ assert ex.bal["USDT"] > 0 and all(v >= -1e-9 for v in ex.bal.values())
 print("equity", round(engine.equity(S), 3), "budget", S["budget"], "trades", len(S["trades"]))
 print("\n--- last Discord message ---\n" + SENT[-1])
 print("\nALL TESTS PASSED")
+
+# ---- runner mode + 24h extend rule (score from the 29-strategy evaluation)
+print("\n--- runner / extend ---")
+S = store.get_json(engine.STATE_KEY)
+for p in list(S["positions"]):
+    S["positions"].remove(p)
+S["cash"] = 12.0; store.set_json(engine.STATE_KEY, S)
+PRICES["CCCUSDT"] = 13.0
+plan = {"stop_pct": 0.03, "tgt_pct": 0.06, "why": "test", "signal_price": 13.0}
+ev = []; engine.execute_buy(S, ex, "CCCUSDT", plan, NOW, ev); store.set_json(engine.STATE_KEY, S)
+print("size bought:", round(S["positions"][0]["cost"], 2), "(paper rule: max(12*1.5%/3%, 6) capped at cash/2 = 6)")
+market.universe = lambda top_n=150: ["BTCUSDT", "CCCUSDT"]
+FULL = {"score": 0.5, "supertrend_dir": 1}
+engine.full_signal = lambda sym, data, rank: dict(FULL)
+PRICES["CCCUSDT"] = S["positions"][0]["target"] * 0.99          # near target
+engine.run_cycle(host="x", ex=ex); S = store.get_json(engine.STATE_KEY); p = S["positions"][0]
+print("runner:", p.get("runner"), "target", p["target"], "prot", p["prot"]["kind"], "stop", round(p["stop"], 4))
+assert p["runner"] and p["target"] is None and p["prot"]["kind"] == "stop"
+FULL = {"score": 0.1, "supertrend_dir": -1}
+engine.run_cycle(host="x", ex=ex); S = store.get_json(engine.STATE_KEY); p = S["positions"][0]
+print("fading:", p.get("runner"), "new target", round(p["target"], 4), "prot", p["prot"]["kind"])
+assert not p["runner"] and p["target"] and p["prot"]["kind"] == "oco"
+# 25h old, up 1%, but score 0.1 -> must close; with score 0.3 -> keep
+p["entry_ms"] = NOW - 25 * H; store.set_json(engine.STATE_KEY, S)
+FULL = {"score": 0.3, "supertrend_dir": 1}
+engine.run_cycle(host="x", ex=ex); S = store.get_json(engine.STATE_KEY)
+assert S["positions"], "should extend (up, score>=0.2)"
+FULL = {"score": 0.1, "supertrend_dir": 1}
+engine.run_cycle(host="x", ex=ex); S = store.get_json(engine.STATE_KEY)
+assert not S["positions"] and "max hold" in S["trades"][-1]["exit_reason"]
+print("extend rule ok; RUNNER/EXTEND TESTS PASSED")

@@ -8,7 +8,7 @@ Safety design:
 """
 import secrets, time, traceback
 from datetime import datetime, timezone, timedelta
-from . import config as C, market, news, guards, signals, store, notify
+from . import config as C, market, news, guards, signals, signals_full, store, notify, reddit
 from .exchange import Exchange, BinanceError
 
 PKT = timezone(timedelta(hours=5))
@@ -120,14 +120,18 @@ def execute_buy(S, ex, sym, plan, ts, events):
         events.append(f"↪️ {sym[:-4]} isn't tradable on the {VENUE} exchange, skipped.")
         return None
     R = ex.rules(sym)
-    size = min(C.TRADE_USDT, C.MAX_TRADE_USDT, S["cash"])
-    if size < max(5.5, R["min_notional"] * 1.15):
+    free_slots = max(C.MAX_POS - len(S["positions"]) - len(S["approvals"]), 1)
+    floor = max(C.MIN_TRADE_USDT, R["min_notional"] * 1.15)
+    size = min(max(equity(S) * C.RISK_PCT / plan["stop_pct"], floor), S["cash"] / free_slots, C.MAX_TRADE_USDT)
+    if size < floor:
+        size = S["cash"] if S["cash"] >= floor else 0
+    if size < floor:
         events.append(f"💤 Not enough bot cash for a safe-size buy (${S['cash']:.2f}).")
         return None
-    if ex.free("USDT") < size:
+    if ex.free("USDT") < size * 0.995:
         events.append(f"⚠️ Binance account has less free USDT than the bot's budget expects; skipped {sym[:-4]}.")
         return None
-    fill = ex.market_buy(sym, size)
+    fill = ex.market_buy(sym, min(size, ex.free("USDT")))
     avg, qty, spent = fill["avg"], fill["qty"], fill["spent"]
     stop_pct, tgt_pct = plan["stop_pct"], plan["tgt_pct"]
     pos = {"symbol": sym, "entry_price": avg, "entry_ms": ts, "entry_utc": iso(ts), "qty": qty, "cost": round(spent, 6),
@@ -174,6 +178,10 @@ def _cycle(S, ex, ts, events, report, host):
     except Exception:
         items = []
     mood = news.market_mood(items, ts)
+    try:
+        rposts, _ = reddit.fetch()
+    except Exception:
+        rposts = []
 
     syms = market.universe()
     for p in S["positions"]:
@@ -183,6 +191,10 @@ def _cycle(S, ex, ts, events, report, host):
         syms.append("BTCUSDT")
     data = market.load_candles(syms)
     btc_down = signals.btc_down(data["BTCUSDT"][1]) if "BTCUSDT" in data else True
+    # 7-day return rank across all coins (feeds the 29-strategy score), from 4h candles
+    r7 = {s: d[1][-1][4] / d[1][-43][4] - 1 for s, d in data.items() if len(d[1]) > 43}
+    ordered = sorted(r7, key=r7.get)
+    rank = {s: i / max(len(ordered) - 1, 1) for i, s in enumerate(ordered)}
     sigs = {}
     for s, (k1, k4) in data.items():
         if len(k1) < 200 or len(k4) < 60 or ts - k1[-1][6] > 3 * 3.6e6:
@@ -236,8 +248,32 @@ def _cycle(S, ex, ts, events, report, host):
             exit_now(S, ex, pos, pos["close_requested"], ts, events); continue
         if bad:
             exit_now(S, ex, pos, f"bad news: {bad[0]['title'][:70]}", ts, events); continue
-        if held_h >= C.EXT_HOLD_H or (held_h >= C.MAX_HOLD_H and bid < pos["entry_price"] * (1 + C.EXTEND_MIN_GAIN)):
+        full = full_signal(sym, data, rank)
+        if full:
+            pos["last_score"] = full["score"]
+        keep = bid >= pos["entry_price"] * (1 + C.EXTEND_MIN_GAIN) and full and full["score"] >= C.EXTEND_MIN_SCORE
+        if held_h >= C.EXT_HOLD_H or (held_h >= C.MAX_HOLD_H and not keep):
             exit_now(S, ex, pos, f"max hold {int(held_h)}h", ts, events); continue
+        if full:
+            strong = full["score"] >= C.RUNNER_SCORE and full["supertrend_dir"] > 0
+            near_tp = pos.get("target") and bid >= pos["target"] * 0.985
+            if strong and near_tp and not pos.get("runner"):
+                pos["runner"], pos["target"] = True, None
+                pos["stop"] = max(pos["stop"], bid * (1 - max(C.TRAIL_GAP_R * pos["R"], 0.015)))
+                if pos.get("prot"):
+                    ex.unprotect(sym, pos["prot"]); pos["prot"] = None
+                if protect_or_exit(S, ex, pos, pos["stop"], ts, events):
+                    events.append(f"🚀 {sym[:-4]}: near target but signals still strong ({full['score']:+.2f}), "
+                                  f"letting it run with a trailing stop at ${fp(pos['stop'])}")
+                continue
+            if pos.get("runner") and not strong and bid > pos["entry_price"]:
+                pos["runner"] = False
+                pos["target"] = max(bid * 1.01, pos["stop"] * 1.02)
+                if pos.get("prot"):
+                    ex.unprotect(sym, pos["prot"]); pos["prot"] = None
+                if protect_or_exit(S, ex, pos, dyn_stop(pos), ts, events):
+                    events.append(f"🎯 {sym[:-4]}: momentum fading ({full['score']:+.2f}), new target ${fp(pos['target'])}")
+                continue
         new_stop = dyn_stop(pos)
         if bid <= new_stop:
             exit_now(S, ex, pos, "price below stop (gap)", ts, events); continue
@@ -282,6 +318,9 @@ def _cycle(S, ex, ts, events, report, host):
         mr = sum(1 for v in C.MR_VOTES if g["votes"].get(v, 0) > 0)
         if mr < C.MR_MIN or (btc_down and g["votes"]["ema_50_200_4h"] < 0):
             continue
+        rd = reddit.for_coin(rposts, s[:-4], ts)
+        if (len(rd["danger"]) >= 2 and len(rd["danger"]) >= 0.25 * rd["mentions"]) or (rd["danger"] and rd["mentions"] <= 3):
+            skipped.append(f"🚫 Skipped {s[:-4]}: Reddit: {rd['danger'][0][:70]}"); continue
         if not (C.MIN_ATR_PCT <= g["atr_pct"] <= C.MAX_ATR_PCT):
             continue
         neg = [n for n in news.for_coin(items, s[:-4], ts) if n["tone"] < 0]
@@ -320,7 +359,7 @@ def _cycle(S, ex, ts, events, report, host):
             aid, code = secrets.token_hex(4), secrets.token_urlsafe(12)
             S["approvals"][aid] = {"symbol": s, "plan": plan, "code": code, "created_ms": ts}
             link = f"https://{host}/api/approve?id={aid}&code={code}" if host else "(set up the domain)"
-            events.append(f"✋ **Buy signal: {s[:-4]}** ~${C.TRADE_USDT:.2f} at ~${fp(ask)} ({why}). "
+            events.append(f"✋ **Buy signal: {s[:-4]}** at ~${fp(ask)} ({why}). "
                           f"Stop -{100 * stop_pct:.1f}%, target +{100 * tgt_pct:.1f}%.\n👉 Approve within "
                           f"{C.APPROVAL_TTL_MIN} min: {link}")
         else:
@@ -349,9 +388,26 @@ def _cycle(S, ex, ts, events, report, host):
     for p in S["positions"]:
         mb = p.get("mark_bid", p["entry_price"])
         report.append(f"📌 {p['symbol'][:-4]}: entry ${fp(p['entry_price'])}, now ${fp(mb)} ({100 * (mb / p['entry_price'] - 1):+.2f}%)"
-                      f" · stop ${fp(p['stop'])} · target ${fp(p['target'])}" + ("" if p.get("prot") else " · ⚠️ no exit orders"))
+                      f" · stop ${fp(p['stop'])} · " + (f"target ${fp(p['target'])}" if p.get("target") else "🚀 runner, no target")
+                      + ("" if p.get("prot") else " · ⚠️ no exit orders"))
     report.append(f"💰 **Bot balance ${eq:.3f}** of ${S['budget']:.2f} budget ({'+' if pnl >= 0 else ''}{pnl:.3f}, "
                   f"{100 * pnl / S['budget']:+.2f}%) · closed {n}, wins {wins}")
+
+
+def full_signal(sym, data, rank):
+    """The paper bot's full 29-strategy evaluation (score, Supertrend), for held coins only (keeps CPU low)."""
+    try:
+        k1, k4 = data[sym]
+        kd = market.klines(sym, "1d", 210)
+        btc_d = [k[4] for k in market.klines("BTCUSDT", "1d", 210)]
+        d = market.get(f"/depth?symbol={sym}&limit=100")
+        price = k1[-1][4]
+        book = (sum(float(q) for p, q in d["bids"] if float(p) >= price * 0.99),
+                sum(float(q) for p, q in d["asks"] if float(p) <= price * 1.01))
+        return signals_full.evaluate(k1, k4, kd, btc_d, rank.get(sym, 0.5), book)
+    except Exception as e:
+        print("full_signal", sym, e)
+        return None
 
 
 def market_bbo(sym):

@@ -9,7 +9,7 @@ It starts on the **Binance testnet (fake money)**. Real money only after you cha
    even if Vercel is late or down. The stop is moved up (breakeven at 1.5R, then trailing), and trades are closed
    after 24h (48h if in profit) or on bad news.
 3. Safety guards: token unlocks, whale selling, coins moving together, daily loss pause (-3%), emergency stop (-25%).
-4. Buys dips when ≥2 of 4 oversold signals agree, at most 2 coins, `TRADE_USDT` each, never beyond `BUDGET_USDT`.
+4. Buys dips when ≥2 of 4 oversold signals agree, at most 2 coins, sized like the paper bot (a stop-out loses ~1.5% of the balance, min $6, at most half the cash), never beyond `BUDGET_USDT`. Same 29-strategy score for the 24h extend rule and "runner" mode, Reddit danger veto.
 5. Posts a Discord update; a daily summary after 9 PM Pakistan time.
 
 ## Setup (one time)
@@ -25,7 +25,7 @@ It starts on the **Binance testnet (fake money)**. Real money only after you cha
 | `DISCORD_USER_ID` | your Discord user ID (for @mentions) |
 | `CONTROL_TOKEN` | a long random password for status/control links |
 | `CRON_SECRET` | another long random string (Vercel sends it to the 15-min schedule) |
-| `BUDGET_USDT` / `TRADE_USDT` | optional, default 12 / 6 |
+| `BUDGET_USDT` | how much USDT the bot may use (default 12) |
 
 4. Redeploy. The schedule appears under Settings → Cron Jobs / Schedules.
 
