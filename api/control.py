@@ -10,7 +10,7 @@ class handler(Base):
         q = self.query()
         if not self.token_ok(q.get("token")):
             return self.reply(401, "Not allowed.")
-        if q.get("action") not in ("pause", "resume", "close"):
+        if q.get("action") not in ("pause", "resume", "close", "selftest"):
             return self.reply(400, "Use action=pause, resume or close (with symbol=...).")
         code, msg = engine.control(q["action"], q.get("symbol"))
         self.reply(code, msg)

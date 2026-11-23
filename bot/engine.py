@@ -405,6 +405,26 @@ def approve(aid, code, ex=None):
         store.unlock("run")
 
 
+def self_test(ex, sym):
+    """Testnet only: full order path (buy -> OCO -> check -> cancel -> stop-only -> cancel -> sell). Not counted in the bot's books."""
+    out = []
+    step = "start"
+    try:
+        step = "account"; usdt = ex.free("USDT"); out.append(f"account ok, test USDT {usdt:,.0f}")
+        step = "rules"; R = ex.rules(sym); out.append(f"rules {sym}: tick {R['tick']}, step {R['step']}, min ${R['min_notional']}")
+        step = "buy"; f = ex.market_buy(sym, 6.0); out.append(f"buy ok: {f['qty']:g} at {f['avg']:.4f} (${f['spent']:.2f})")
+        bid, ask = ex.bbo(sym)
+        step = "oco"; p = ex.protect(sym, ex.floor_qty(sym, f["qty"]), bid * 0.96, ask * 1.08); out.append(f"OCO ok: stop {p['stop']}, target {p['target']}")
+        step = "oco status"; out.append(f"OCO status: {'waiting' if ex.protection_result(sym, p) is None else 'done?!'}")
+        step = "cancel oco"; ex.unprotect(sym, p); out.append("OCO cancelled")
+        step = "stop only"; p2 = ex.protect(sym, ex.floor_qty(sym, f["qty"]), bid * 0.96, None); out.append(f"stop-only ok: {p2['stop']}")
+        step = "cancel stop"; ex.unprotect(sym, p2); out.append("stop cancelled")
+        step = "sell"; s = ex.market_sell(sym, ex.floor_qty(sym, min(f["qty"], ex.free(sym[:-4])))); out.append(f"sell ok: {s['qty']:g} for ${s['proceeds']:.2f}")
+        return ["🧪 Self-test PASSED · " + " · ".join(out)]
+    except Exception as e:
+        return ["🧪 Self-test FAILED at " + step + f": {e} · so far: " + " · ".join(out)]
+
+
 def control(action, symbol=None, ex=None):
     """pause | resume | close (symbol) | status. Protected by CONTROL_TOKEN in the API layer."""
     S = load()
@@ -421,6 +441,10 @@ def control(action, symbol=None, ex=None):
         elif action == "resume":
             S["paused_by_user"] = False; S["halted"] = False; S["pause_until_ms"] = 0
             events.append("▶️ Resumed: the bot may buy again on the next check.")
+        elif action == "selftest":
+            if C.MODE != "testnet":
+                return 400, "Self-test only runs in testnet mode."
+            events += self_test(ex or Exchange(), symbol or "BTCUSDT")
         elif action == "close":
             sym = (symbol or "").upper()
             sym = sym if sym.endswith("USDT") else sym + "USDT"
