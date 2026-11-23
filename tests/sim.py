@@ -120,7 +120,7 @@ print(engine.control("resume"))
 print(engine.approve("nope", "bad", ex=ex))
 assert ex.bal["USDT"] > 0 and all(v >= -1e-9 for v in ex.bal.values())
 print("equity", round(engine.equity(S), 3), "budget", S["budget"], "trades", len(S["trades"]))
-print("\n--- last Discord message ---\n" + SENT[-1])
+print("\n--- last check report ---\n" + [m for m in SENT if m.startswith("⏱️")][-1])
 print("\nALL TESTS PASSED")
 
 # ---- runner mode + 24h extend rule (score from the 29-strategy evaluation)

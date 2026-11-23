@@ -166,7 +166,7 @@ def run_cycle(host="", ex=None):
         S["last_run"] = {"utc": iso(ts), "secs": round(time.time() - ts / 1000, 1), "events": events}
         save(S)
         store.unlock("run")
-    msg = "\n".join(report[:2] + events + report[2:])
+    msg = "\n".join(report[:1] + events + report[1:])
     notify.send(msg)
     _daily(S, ts)
     return {"ok": True, "events": events}
@@ -392,6 +392,12 @@ def _cycle(S, ex, ts, events, report, host):
                       + ("" if p.get("prot") else " · ⚠️ no exit orders"))
     report.append(f"💰 **Bot balance ${eq:.3f}** of ${S['budget']:.2f} budget ({'+' if pnl >= 0 else ''}{pnl:.3f}, "
                   f"{100 * pnl / S['budget']:+.2f}%) · closed {n}, wins {wins}")
+    in_trades = eq - S["cash"]
+    try:
+        acct = f" · Binance USDT free ${ex.free('USDT'):.2f}"
+    except Exception:
+        acct = ""
+    report.append(f"💵 Cash left **${S['cash']:.2f}** · in trades ${in_trades:.2f}{acct}")
 
 
 def full_signal(sym, data, rank):
