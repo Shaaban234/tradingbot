@@ -18,3 +18,4 @@
   - Backtester now has the exact live sizing rule (risk 1.5%, $6 floor, capped at cash / free slots). With it the live rules score +16.7% (dd 18.5%; halves -0.6% / +18.1%), not the +24% quoted before (that used an uncapped size the bots never ran).
   - Account size: at $20 the $6 minimum distorts sizing -> -11.7% (dd 36%); from $30 up results match the design (+16.7%). Biggest lever is balance, user's choice.
   - 3 or 4 coins at once: worse (-9% to -27%). Risk 2% per trade: worse in 1st half (-15%), rejected. Risk 1%: worse.
+- 2026-11-25 01:55 PKT: momentum test (user asked why we can't catch the top gainers). Buying coins already pumping, 151 days, 119 coins, 6% stop / 12% target / 24h, after fees: up 25% in 24h -0.74%/trade (30% win); up 8-15% with 2-3x volume about 0.00%; best (up 5% in 1h, 3x volume) +0.23%/trade, only +0.06% in the 1st half. Not worth adding; rejected.
