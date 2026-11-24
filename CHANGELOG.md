@@ -19,3 +19,10 @@
   - Account size: at $20 the $6 minimum distorts sizing -> -11.7% (dd 36%); from $30 up results match the design (+16.7%). Biggest lever is balance, user's choice.
   - 3 or 4 coins at once: worse (-9% to -27%). Risk 2% per trade: worse in 1st half (-15%), rejected. Risk 1%: worse.
 - 2026-11-25 01:55 PKT: momentum test (user asked why we can't catch the top gainers). Buying coins already pumping, 151 days, 119 coins, 6% stop / 12% target / 24h, after fees: up 25% in 24h -0.74%/trade (30% win); up 8-15% with 2-3x volume about 0.00%; best (up 5% in 1h, 3x volume) +0.23%/trade, only +0.06% in the 1st half. Not worth adding; rejected.
+- 2026-11-25 02:30 PKT: 21 new entry-signal ideas tested vs the live rules (151d, live sizing, pass = better in full AND both halves, drawdown no more than 2 pts worse). NONE PASSED, no change:
+  - Stricter/broader dip definitions (3 of 4; 2/3/4 of 8 incl. stochRSI, connorsRSI2, dip ladder, VWAP): -37% to +3.9% vs +16.7%.
+  - Bounce confirmation (MACD / Heikin-Ashi / SAR turning up): too few trades, +4.5% at best.
+  - Only strong coins (30d momentum, daily trend, 4h trend, vs-BTC strength): -12% to -0.4%; 4h-trend filter great in 2nd half (+25%) but -30% in 1st.
+  - Falling-knife filters (skip dips >4% / >6%): worse; the deepest dips are the best trades.
+  - No buys at all when BTC is down: +1.4% (1st half better, 2nd worse). Ranking or filtering by the 29-strategy score: worse.
+  - Bigger bets (risk 2% / 3% / 5% per trade, live sizing): +12.8% / -16.8% / -16.8% with bigger drawdowns (29-34%) vs +16.7% / 18.5% now.
