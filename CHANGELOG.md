@@ -9,3 +9,8 @@
 - 2026-11-24 03:25 PKT: Discord report now shows cash left, money in trades and the Binance USDT balance; trade events listed right after the header (user request).
 - 2026-11-24 07:09 PKT: LIVE TRADE: bought $12.04 of JST at $0.14504 (stop -2.5% / target +5%; paper-rule size: 1.5% risk at a 2.5% stop = $12). Paper bot didn't buy it only because it already held 2 coins. Research: no red flags (Tron DeFi gov token, buyback & burn ongoing).
 - 2026-11-24 11:46 PKT: budget raised $20.00 -> $20.15 at the user's request (use the whole USDT balance; fees come out of the coins received, so no cash cushion is needed).
+- 2026-11-25 01:45 PKT: improvement tests (user asked how to improve). 151-day backtest, 119 coins, both halves. NO RULE CHANGED, every variant lost to the current rules (+24.4% full, +4.7%/+19.5% halves):
+  - Longer holds (36h, 48h, extend on any profit, 72h cap): -8% to -36%. The paper trades still rising at 24h were the exception, not the rule.
+  - Tighter stops (max 5% / 4.5% / 4%, 2.0xATR): -18% to -45%; the coins this bot buys need room.
+  - Time-stops for trades going nowhere (exit after 8h/12h, or tighten to -2.5%/-3%): worse in the 1st half, better in the 2nd: inconsistent, rejected.
+  - Robustness warning: nearby hold times swing a lot (22h -4%, 24h +24%, 26h -47%). With only 2 slots, one different exit changes every later trade, so backtest % are noisy; the real edge is smaller than +24% suggests. Keep the budget small until 50+ live trades.
