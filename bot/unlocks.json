@@ -1,5 +1,5 @@
 {
- "updated_utc": "2026-11-23T19:20:16Z",
+ "updated_utc": "2026-11-24T20:27:20Z",
  "sources": "mrnasdog.com/token-unlocks (Nov+Dec 2026), Tokenomist via bittime.com (Nov 2026), app.tokenomics.com/unlocks, cryptorank.io/token-unlock",
  "rule": "skip new buys from 7 days before to 1 day after an unlock of >=1% of supply (or unknown % and >=$5M)",
  "events": [
