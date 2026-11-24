@@ -26,3 +26,7 @@
   - Falling-knife filters (skip dips >4% / >6%): worse; the deepest dips are the best trades.
   - No buys at all when BTC is down: +1.4% (1st half better, 2nd worse). Ranking or filtering by the 29-strategy score: worse.
   - Bigger bets (risk 2% / 3% / 5% per trade, live sizing): +12.8% / -16.8% / -16.8% with bigger drawdowns (29-34%) vs +16.7% / 18.5% now.
+- 2026-11-25 02:45 PKT: 25 well-known aggressive spot strategies tested (user request; 151d, 114 coins, 2 slots, fees+slippage; paper/bt_wild.py). Buy-and-hold: BTC -0.3%, avg alt +5.0%. Live rules: +16.7%, dd 18.5%.
+  - 21 of 25 lost money: breakouts (Donchian, Turtle, Bollinger, MACD) -86% to -95%; top-gainer chasing -70% to -89%; momentum rotations -43% to -97%; all-in one coin -51% / -99%; RSI2 / Bollinger / RSI14 reversion -44% to -64%.
+  - Apparent winners were luck: EMA 9/21 cross +72% (dd 65%, 18% win), but neighbours 8/21 +157%, 9/26 -92%, 12/26 -90%, 7/21 -71%. Grid -3%/+3% +58% (dd 45%) but -2/+2 +0.5%, -5/+5 -40%, and only +1.2% in the 2nd half. DCA martingale +13% (dd 57%, -38.5% in 2nd half).
+  - None adopted. The live rules give the best return per unit of risk of everything tested.
