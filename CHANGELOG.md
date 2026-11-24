@@ -14,3 +14,7 @@
   - Tighter stops (max 5% / 4.5% / 4%, 2.0xATR): -18% to -45%; the coins this bot buys need room.
   - Time-stops for trades going nowhere (exit after 8h/12h, or tighten to -2.5%/-3%): worse in the 1st half, better in the 2nd: inconsistent, rejected.
   - Robustness warning: nearby hold times swing a lot (22h -4%, 24h +24%, 26h -47%). With only 2 slots, one different exit changes every later trade, so backtest % are noisy; the real edge is smaller than +24% suggests. Keep the budget small until 50+ live trades.
+- 2026-11-25 01:55 PKT: "how to make more money" tests (151d backtest, both halves). NO RULE CHANGED.
+  - Backtester now has the exact live sizing rule (risk 1.5%, $6 floor, capped at cash / free slots). With it the live rules score +16.7% (dd 18.5%; halves -0.6% / +18.1%), not the +24% quoted before (that used an uncapped size the bots never ran).
+  - Account size: at $20 the $6 minimum distorts sizing -> -11.7% (dd 36%); from $30 up results match the design (+16.7%). Biggest lever is balance, user's choice.
+  - 3 or 4 coins at once: worse (-9% to -27%). Risk 2% per trade: worse in 1st half (-15%), rejected. Risk 1%: worse.
