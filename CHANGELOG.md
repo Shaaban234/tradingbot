@@ -47,3 +47,8 @@
 - 2026-11-26 18:09 PKT: LIVE TRADE: bought $12.55 of JST at $0.14524 (stop -2.5% / target +5.0%, OCO live). Paper bot bought JST at $0.14589 1.5h earlier (parity; live was full until SHELL sold). Research reused from paper (11:43Z): no red flags; large-cap Tron DeFi token, buyback & burn; whales net selling.
 - 2026-11-26 19:09 PKT: SAFETY GUARD: loss limit triggered (equity $20.81, 3.4% below 24h high $21.54, mostly unrealized DODO/JST dips + SHELL giving back gains). New buys paused 6h until 01:09 PKT Nov 27; open positions still managed with OCO protection. Working as designed, no override.
 - 2026-11-26 19:39 PKT: LIVE TRADE CLOSED: sold DODO at $0.04028 (max hold 24h; score 0.17 < 0.20 and trade was down, so no extension): -$0.19 (-3.19%). Paper bot never held DODO. Live closed so far: 6 trades, 4 wins, net +$0.80.
+- 2026-11-26 19:50 PKT: exit tests (user asked why a hard 24h sell, and why DODO wasn't protected at +7.6%; paper/bt_improve3.py, same 151d data, both halves). NO RULE CHANGED; all 13 variants lost to live rules (+24.4% full, +4.7% / +19.5% halves):
+  - Soft 24h exit (at 24h keep winners/all trades with a 2-3% trailing stop, up to 36-48h): -8.9% to -35.4% full; every one negative in the 1st half.
+  - Earlier profit protection (breakeven at 1.0R or 0.75R, trailing from 1.5R, tighter 0.5R gap): -27.7% to +2.6% full; best ones only +2-3% vs +24%.
+  - Combinations: -4.5% to +0.0%.
+  - Why: these coins swing a lot after a dip; early breakeven/trailing stops get shaken out of trades that later hit the +2R target, and holding past 24h mostly gives back gains. DODO (+7.9% peak, then -3.2%) is the cost of that trade-off.
