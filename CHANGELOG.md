@@ -52,3 +52,4 @@
   - Earlier profit protection (breakeven at 1.0R or 0.75R, trailing from 1.5R, tighter 0.5R gap): -27.7% to +2.6% full; best ones only +2-3% vs +24%.
   - Combinations: -4.5% to +0.0%.
   - Why: these coins swing a lot after a dip; early breakeven/trailing stops get shaken out of trades that later hit the +2R target, and holding past 24h mostly gives back gains. DODO (+7.9% peak, then -3.2%) is the cost of that trade-off.
+- 2026-11-27 01:24 PKT: SAFETY GUARD re-triggered right after the first pause ended (equity $20.89, 3.0% below the 24h high $21.54 that is still inside the 24h window until ~09:24 PKT). New buys paused until 07:24 PKT; JST still managed. Working as designed, no override.
