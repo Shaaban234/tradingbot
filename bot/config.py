@@ -20,7 +20,7 @@ BUDGET_USDT = _f("BUDGET_USDT", 12)          # the slice of your account the bot
 RISK_PCT = 0.015                             # paper bot v6.2 sizing: a stop-out loses ~1.5% of the balance...
 MIN_TRADE_USDT = 6.0                         # ...but never below $6 (Binance's $5 minimum must still hold after a stop)
 MAX_TRADE_USDT = _f("MAX_TRADE_USDT", 1000)  # optional hard cap per buy
-MAX_POS = int(_f("MAX_POS", 2))
+MAX_POS = int(_f("MAX_POS", 1))                # 1 open trade at a time: at ~$20 with a $6 min order, 2 slots backtest -26% vs +70% (Nov 27 test)
 
 # ---- strategy v6.2 (same as the paper bot): buy dips when >= 2 of 4 oversold signals agree
 MR_VOTES = ("rsi_30_70", "keltner", "bollinger", "zscore_50")
