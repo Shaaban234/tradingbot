@@ -1,6 +1,6 @@
 {
- "updated_utc": "2026-11-25T16:29:57Z",
- "sources": "mrnasdog.com/token-unlocks (Nov+Dec 2026), Tokenomist via bittime.com (Nov 2026), app.tokenomics.com/unlocks, cryptorank.io/token-unlock, coinstats.app Dec 2026 calendar",
+ "updated_utc": "2026-11-27T14:25:15Z",
+ "sources": "mrnasdog.com/token-unlocks (Nov+Dec 2026), Tokenomist via bittime.com (Nov 2026), app.tokenomics.com/unlocks, cryptorank.io/token-unlock, coinstats.app Dec 2026 calendar, cryptorank.io VC-vesting note (JTO final investor unlock Dec 7 2026)",
  "rule": "skip new buys from 7 days before to 1 day after an unlock of >=1% of supply (or unknown % and >=$5M)",
  "events": [
   {
@@ -120,8 +120,8 @@
   {
    "sym": "JTO",
    "date": "2026-12-07",
-   "pct": 2.08,
-   "usd": 2530000.0
+   "pct": 3.15,
+   "usd": 16200000.0
   },
   {
    "sym": "SOL",
