@@ -1,50 +1,8 @@
 {
- "updated_utc": "2026-11-27T14:25:15Z",
+ "updated_utc": "2026-11-28T14:19:59Z",
  "sources": "mrnasdog.com/token-unlocks (Nov+Dec 2026), Tokenomist via bittime.com (Nov 2026), app.tokenomics.com/unlocks, cryptorank.io/token-unlock, coinstats.app Dec 2026 calendar, cryptorank.io VC-vesting note (JTO final investor unlock Dec 7 2026)",
  "rule": "skip new buys from 7 days before to 1 day after an unlock of >=1% of supply (or unknown % and >=$5M)",
  "events": [
-  {
-   "sym": "AKE",
-   "date": "2026-11-21",
-   "pct": 9.2,
-   "usd": 11100000.0
-  },
-  {
-   "sym": "MORPHO",
-   "date": "2026-11-21",
-   "pct": 1.3,
-   "usd": 13700000.0
-  },
-  {
-   "sym": "SOON",
-   "date": "2026-11-23",
-   "pct": null,
-   "usd": 6200000.0
-  },
-  {
-   "sym": "H",
-   "date": "2026-11-23",
-   "pct": null,
-   "usd": 14800000.0
-  },
-  {
-   "sym": "MON",
-   "date": "2026-11-24",
-   "pct": 132.2,
-   "usd": 204000000.0
-  },
-  {
-   "sym": "XPL",
-   "date": "2026-11-25",
-   "pct": 4.78,
-   "usd": 10000000.0
-  },
-  {
-   "sym": "HUMA",
-   "date": "2026-11-26",
-   "pct": null,
-   "usd": 13200000.0
-  },
   {
    "sym": "W",
    "date": "2026-11-27",

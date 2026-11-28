@@ -79,3 +79,5 @@
 - 2026-11-28 10:54 PKT: LIVE TRADE CLOSED: ENSO hit its stop (OCO filled at $0.372, stop-loss, ~20h45m after entry): -$0.36 (-4.32%). Broad alt sell-off overnight (Fear&Greed 13, BTC trend down, WLFI -29%); paper bot stopped out of the same ENSO setup at $0.3731 (-4.0%) the same hour = parity. Live closed so far: 9 trades, 5 wins / 4 losses, net +$0.09. PKT Nov 28 so far: -$0.36, under the $1 alert line. Equity $20.25 (all cash, no open trades); loss-limit pause #6 keeps new buys off until 14:24 PKT.
 
 2026-11-28 14:39 PKT: SAFETY GUARD 7th pause: equity $20.25, 5.1% below the 24h high $21.35 (set 18:24 PKT Nov 27). New buys paused until 20:39 PKT Nov 28; no override. That high leaves the 24h window ~18:24 PKT, so this should be the last pause from it. Paper bot meanwhile sold PROM at max hold (-0.67%).
+
+2026-11-28 19:25 PKT: Daily unlock refresh: re-checked the next-7-day calendar (FF/GRVT/GUN/HYPE Nov 29, KMNO Nov 30, P Dec 1, STO Dec 2, KITE Dec 3 still on it; no new 2026 events found), dropped events older than Nov 27, bumped updated_utc. Copied to the paper bot's unlocks.json.
