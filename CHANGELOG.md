@@ -81,3 +81,5 @@
 2026-11-28 14:39 PKT: SAFETY GUARD 7th pause: equity $20.25, 5.1% below the 24h high $21.35 (set 18:24 PKT Nov 27). New buys paused until 20:39 PKT Nov 28; no override. That high leaves the 24h window ~18:24 PKT, so this should be the last pause from it. Paper bot meanwhile sold PROM at max hold (-0.67%).
 
 2026-11-28 19:25 PKT: Daily unlock refresh: re-checked the next-7-day calendar (FF/GRVT/GUN/HYPE Nov 29, KMNO Nov 30, P Dec 1, STO Dec 2, KITE Dec 3 still on it; no new 2026 events found), dropped events older than Nov 27, bumped updated_utc. Copied to the paper bot's unlocks.json.
+
+2026-11-28 20:54 PKT: LIVE BUY: ERA $8.35 at $0.0675 (rsi+keltner+zscore oversold, -3.7% vs 1h avg), first buy after pause #7 ended. OCO live on Binance: stop $0.0650 (-3.6%), target $0.0725 (+7.3%). Research (posted via action=research): no hack/delisting/lawsuit news; Caldera = Founders Fund-backed rollup-as-a-service gas/governance token, ~$12M cap, near its Sep 2026 all-time low; monthly unlocks on the 17th (~2.4% of supply; Nov 17 done, next Dec 17) = steady dilution. Added ERA Dec 17 unlock to unlocks.json (live + paper).
